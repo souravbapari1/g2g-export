@@ -1,7 +1,7 @@
-import { AreaInfo } from "@/components/mapbox/mapBoxPickArea";
 import { ProjectItem } from "./project";
 import { TreeTypesItem } from "./treetypes";
 import { Company, UserItem } from "./user";
+import type { UnitItem } from "./units";
 
 export interface TreeOrderItem {
   amount: number;
@@ -21,6 +21,7 @@ export interface TreeOrderItem {
   user: string;
   plant_date: string;
   type: string;
+  support: string,
   planted_trees?: Tree[];
   not_planted_trees?: Tree[];
   filter_by_status?: { [key: string]: Tree[] };
@@ -39,6 +40,8 @@ export interface Expand {
   user: UserItem;
   asigned_to: UserItem;
   project: ProjectItem;
+  support: UserItem;
+
 }
 
 export interface Tree {
@@ -59,6 +62,9 @@ export interface Tree {
   user: string;
   plant_date: string;
   update_by: string;
+  planted_by?: string;
+  maped_by?: string,
+  unit?: string
   expand?: ExpandTree;
 }
 
@@ -73,4 +79,15 @@ export interface ExpandTree {
   user?: UserItem;
   type?: TreeTypesItem;
   update_by?: UserItem;
+  planted_by?: UserItem;
+  maped_by?: UserItem,
+  unit?: UnitItem
 }
+
+export interface AreaInfo {
+  id: string;
+  area: number;
+  areaName: string;
+  areaType: string;
+}
+

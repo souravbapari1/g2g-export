@@ -12,6 +12,12 @@ import { genAccStanderdsExcel } from "./services/excel/genAccStanderdsExcel";
 import { genProjectExcel } from "./services/excel/genProjectsExcel";
 import { genTreesExcel } from "./services/excel/genTreesExcel";
 import { genTreeTypesExcel } from "./services/excel/genTreeTypeExcel";
+import { genTreeOrdersExcel } from "./services/excel/genTreePlantingOrderExcel";
+import { genExcelOtherOrders } from "./services/excel/genExcelOtherOrders";
+import { getMembershipRequests } from "../request/fetch/getMembershipRequests";
+import { genMembershipExcel } from "./services/excel/genMembershipExcel";
+import { genAcademicRequestsExcel } from "./services/excel/genAcademicRequestsExcel";
+import { genFSLPExcel } from "./services/excel/genFSLPExcel";
 
 export const startExcelWorker = () => {
     excelQueue.process(async (job) => {
@@ -47,6 +53,23 @@ export const startExcelWorker = () => {
             case "tree_types":
                 await genTreeTypesExcel(email);
                 break;
+            case "tree_planting_orders":
+                await genTreeOrdersExcel(email);
+                break;
+            case "other_projects_orders":
+                await genExcelOtherOrders(email);
+                break;
+            case "membership_payments":
+                await genMembershipExcel(email);
+                break;
+            case "academics_requests":
+                await genAcademicRequestsExcel(email);
+                break
+            case "fslp":
+                await genFSLPExcel(email);
+                break;
+
+
             default:
                 console.log("Unknown data - " + base);
                 break;

@@ -6,11 +6,11 @@ export const getTrees = async (page: number = 1, filter?: string) => {
 
   const req = await client
     .get("/api/collections/trees/records/", {
-      expand: "project,user,order,type,update_by",
+      expand: "project,user,order,type,update_by,unit,planted_by,maped_by",
       perPage: 20,
       page: page,
       sort: "-created",
-      filter: filter || "",
+      filter: filter || "(status!='pending')",
     })
     .send<Collection<Tree>>();
   return req;

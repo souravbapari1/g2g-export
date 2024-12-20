@@ -28,7 +28,6 @@ app.use(authenticate);
 
 app.post("/gen/pdf", genPdfProvide)
 app.post("/gen/excel", genExcelProvide)
-app.post("/gen/excel/test", genExcelProvide)
 
 
 

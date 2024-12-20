@@ -1,18 +1,17 @@
-import { loadAllTrees } from "../../../request/fetch/trees";
-import PDFDocument from "pdfkit-table";
+import PDFDocumentWithTables from "pdfkit-table";
 import fs from "fs";
-import type { Tree } from "../../../interface/treeOrders";
-import { ageOfDays } from "../../../helper/dateTime";
+import { loadPaginatedData } from "../../../request/actions";
+import { getTreeOrders } from "../../../request/fetch/getTreeOrders";
+import type { TreeOrderItem } from "../../../interface/treeOrders";
 import { mailSender } from "../../mail/mailSender";
-
-export const genPdfTrees = async (email: string) => {
-    const doc = new PDFDocument({ margin: 30 });
-    const outputPath = 'public/trees.pdf';
+export const genPdfTreeOrders = async (email: string) => {
+    const doc = new PDFDocumentWithTables({ margin: 30 });
+    const outputPath = 'public/trees_orders.pdf';
     doc.pipe(fs.createWriteStream(outputPath)); // Output PDF to file
 
     try {
         console.log("loading trees...");
-        const data: Tree[] = await loadAllTrees();  // Fetch tree data
+        const data: TreeOrderItem[] = await loadPaginatedData(getTreeOrders);  // Fetch tree data
 
         if (!data || data.length === 0) {
             console.log("No tree data available.");
@@ -35,13 +34,13 @@ export const genPdfTrees = async (email: string) => {
 
             // Move Down to Place Title Below Image
             doc.moveDown(6); // Adjust spacing as needed
-            doc.fontSize(20).text("Gray To Green - Tree Report", { align: "center" });
+            doc.fontSize(20).text("Gray To Green - Tree Orders", { align: "center" });
             doc.moveDown(2); // Additional space below title
 
             const table = {
-                headers: ["Tree Id", "Order Id", "Tree Name", "Tree Type", "Project", "Area Name", "Planting Date", "Planted By", "Status"],
+                headers: ["Order Id", "Customer Name", "Email ID", "Project", "Unit Amount", "Trees Count", "Amount", "Status", "Order Date"],
                 rows: [...data.map((e) => {
-                    return [e.treeId, e.orderIdNo, e.treeName, e.expand?.unit?.name, e.expand?.project?.name, (e.area?.areaName || "N/A"), ageOfDays(e.plant_date), e.expand?.planted_by ? e.expand?.planted_by?.first_name + " " + e.expand?.planted_by?.last_name : "N/A", e.status.toUpperCase()]
+                    return [e.id, e.expand.user.first_name + " " + e.expand.user.last_name, e.expand.user.email, e.expand?.project.name, e.expand?.project.omr_unit + "OMR", e.tree_count, (e.expand.project.omr_unit * e.tree_count) + " OMR", e.status, e.created]
                 })]
             };
 
@@ -51,11 +50,12 @@ export const genPdfTrees = async (email: string) => {
                 minRowHeight: 5,
             })
             doc.end();  // Finalize the PDF document
-            await mailSender("Trees List Pdf Report", email, ["trees.pdf"])
+            await mailSender("Tree Orders List Pdf Report", email, ["trees_orders.pdf"])
         }
     } catch (error) {
         console.log("Error loading trees:", error);
         doc.fontSize(14).text("An error occurred while loading tree data.", { align: "center" });
         doc.end();  // Finalize the PDF document
     }
-};
+
+}
